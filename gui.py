@@ -124,12 +124,7 @@ class GUI:
             self.button = self.background.getkey().upper()
 
     def run_prompt(self):
-        """
-        Handle the current input command or benchmarking
-
-        Parameters:
-        message: The message to prompt to the user.        
-        """
+        """Handle the current input command or benchmark."""
 
         # Get Current Prompt
         if self.button == 'F':
