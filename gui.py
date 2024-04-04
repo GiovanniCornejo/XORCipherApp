@@ -1,6 +1,15 @@
 import curses
 
 class GUI:
+    # Container for application
+    OVERLAY_ROWS, OVERLAY_COLS = 25, 80
+    # Display menu below top of overlay 
+    MENU_ROWS, MENU_COLS = 10, 40
+    MENU_Y, MENU_X = 2, MENU_COLS // 2
+    # Display text, key below menu
+    DISPLAY_ROWS, DISPLAY_COLS = 4, OVERLAY_COLS - 4
+    DISPLAY_Y, DISPLAY_X = MENU_ROWS + MENU_Y, 2
+
     def __init__(self, stdscr: curses.window):
         curses.curs_set(0) # No cursor
         curses.noecho() # Type without it showing
@@ -18,12 +27,11 @@ class GUI:
 
     def init_overlay(self):
         """Initialize the overlay window."""
-        window = curses.newwin(24, 80, 0, 0)
+        window = curses.newwin(self.OVERLAY_ROWS, self.OVERLAY_COLS, 0, 0)
         window.box()
 
-        _, w = window.getmaxyx()
         intro_message = "Welcome to the XOR-Cipher App!"
-        x = w // 2 - len(intro_message) // 2 # Center text
+        x = self.OVERLAY_COLS // 2 - len(intro_message) // 2 # Center text
         y = 1
         window.addstr(y, x, intro_message)
 
@@ -32,7 +40,7 @@ class GUI:
     def init_menu(self):
         """Initialize the menu window contained within the overlay window."""
         _, w = self.overlay.getmaxyx()
-        window = curses.newwin(10, 40, 2, w // 2 - 20)
+        window = curses.newwin(self.MENU_ROWS, self.MENU_COLS, self.MENU_Y, self.MENU_X)
         window.box()
     
         menu = [
@@ -53,8 +61,8 @@ class GUI:
     
     def init_display(self):
         """Initialize the display window contained within the overlay window."""
-        _, w = self.overlay.getmaxyx()
-        window = curses.newwin(4, 76, 2 + 10, w // 2 - 38)
+        window = curses.newwin(self.DISPLAY_ROWS, self.DISPLAY_COLS, 
+                               self.DISPLAY_Y, self.DISPLAY_X)
         window.box()
         return window
     
