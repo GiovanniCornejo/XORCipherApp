@@ -1,6 +1,8 @@
 import curses
 from curses.textpad import Textbox, rectangle
 
+from cipher import cipher, load_cipher_lib
+
 class TUI:
     # Container for application
     OVERLAY_ROWS, OVERLAY_COLS = 24, 80
@@ -48,7 +50,6 @@ class TUI:
         self.output.refresh()
 
     def init_overlay(self):
-        """Initialize the overlay window."""
         window = curses.newwin(self.OVERLAY_ROWS, self.OVERLAY_COLS, 0, 0)
         window.box()
 
@@ -59,7 +60,6 @@ class TUI:
         return window
     
     def init_menu(self):
-        """Initialize the menu window contained within the overlay window."""
         window = curses.newwin(self.MENU_ROWS, self.MENU_COLS, self.MENU_Y, self.MENU_X)
         window.box()
     
@@ -80,18 +80,15 @@ class TUI:
         return window
     
     def init_output(self):
-        """Initialize the display window contained within the overlay window."""
         window = curses.newwin(self.OUTPUT_ROWS, self.OUTPUT_COLS, self.OUTPUT_Y, self.OUTPUT_X)
         window.box()
         return window
     
     def init_prompt(self):
-        """Initialize the prompt window contained within the overlay window."""
         window = curses.newwin(self.PROMPT_ROWS, self.PROMPT_COLS, self.PROMPT_Y, self.PROMPT_X)
         return window
     
     def init_input(self):
-        """Initialize the user input window contained within the prompt window"""
         window = curses.newwin(self.INPUT_ROWS, self.INPUT_COLS, self.INPUT_Y, self.INPUT_X)
         text_win = curses.newwin(1, self.INPUT_COLS - 2, self.INPUT_Y + 1, self.INPUT_X + 1)
         return window, text_win
@@ -151,6 +148,7 @@ class TUI:
         self.background.refresh()
     
     def get_user_input(self):
+        """Get user input for provided prompt."""
         self.input.box()
         self.input.refresh() # No need to clear, prompt clears this
 
@@ -165,7 +163,18 @@ class TUI:
         return user_input.strip()
     
     def run_cipher(self):
-        pass
+        """Handle the current cipher command."""
+        if self.button == 'P':
+            command = self.apply_python_cipher
+        elif self.button == 'R':
+            command = self.apply_rust_cipher
+        elif self.button == 'V':
+            command = self.verify_cipher_results
+        
+        status_output = command()
+        self.update_status(status_output)
+        self.background.refresh()
+
 
     
     # ------------------------------ Input Commands ------------------------------ #
@@ -214,20 +223,30 @@ class TUI:
 
     def apply_rust_cipher(self):
         """Apply Rust cipher to text."""
-        pass
+        # TODO: Apply Rust Cipher + Load Library (in __init__ maybe)
+        return "Applied Rust cipher."
 
     def apply_python_cipher(self):
         """Apply Python cipher to text"""
-        pass
+        self.text = cipher(self.text, self.key)
+        self.update_text_and_key()
+        self.output.refresh()
+        return "Applied Python cipher."
 
     def verify_cipher_results(self):
         """Verify cipher results."""
-        pass
+
+        # TODO: Verify
+        return "Cipher match verified!"
 
     def run_benchmarks(self):
-        """Run benchmarks on text for Rust and Python cipher."""
+        """Run benchmarks on current text for Rust and Python cipher."""
         self.update_prompt("Running benchmarks...")
         self.prompt.refresh()
+
+        # TODO: Run benchmarks
+
+        # TODO: Display results
 
     # ------------------------------ Update Display ------------------------------ #
 
@@ -253,12 +272,12 @@ class TUI:
         self.output.addstr(2, 2," " * (self.OUTPUT_COLS - 3))
         self.output.addstr(2, 2, "KEY  [" + str_key + "]")
             
-    def update_status(self, status):
+    def update_status(self, status: str):
         """Update the status shown."""
         self.background.addstr(self.OVERLAY_ROWS, 0, " " * self.OUTPUT_COLS)
         self.background.addstr(self.OVERLAY_ROWS, 0, "Status: " + status)
     
-    def update_prompt(self, message):
+    def update_prompt(self, message: str):
         """Update the prompt shown"""
         x = self.PROMPT_COLS // 2 - len(message) // 2 # Center text
         self.prompt.addstr(1, x, message)
