@@ -253,8 +253,6 @@ class TUI:
 
         # TODO: Display results
 
-        # TODO: Method of clearing displayed results upon another action
-
     # ------------------------------ Update Display ------------------------------ #
 
     def update_text_and_key(self):
