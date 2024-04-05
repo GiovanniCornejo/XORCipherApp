@@ -16,12 +16,6 @@ class TUI:
     # Display user input below prompt
     INPUT_ROWS, INPUT_COLS = 3, 68
     INPUT_Y, INPUT_X = PROMPT_Y + 2, 6
-    """
-    Start on 18th row, 2nd column and be 6 x 78 
-2) Display prompt, centered, on 2nd row 
-3) Display box, centered, under prompt, size 3x68 
-4) Allow entry of 65 characters on one line only 
-"""
 
     # ----------------------------------- Init ----------------------------------- #
 
