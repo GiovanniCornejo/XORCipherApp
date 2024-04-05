@@ -1,7 +1,7 @@
 import curses
 from curses.textpad import Textbox, rectangle
 
-class GUI:
+class TUI:
     # Container for application
     OVERLAY_ROWS, OVERLAY_COLS = 24, 80
     # Display menu below top of overlay 

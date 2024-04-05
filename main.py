@@ -1,9 +1,9 @@
 import curses
 
-from gui import GUI
+from tui import TUI
 
 def main(stdscr):
-    GUI(stdscr).run()
+    TUI(stdscr).run()
 
 if __name__ == "__main__":
     curses.wrapper(main)
