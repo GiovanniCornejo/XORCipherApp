@@ -104,6 +104,11 @@ class TUI:
                 self.run_cipher()
             elif self.button == "B":
                 self.run_benchmarks()
+                self.button = self.background.getkey().upper()
+                # Clear benchmarks output after next action
+                self.prompt.clear()
+                self.prompt.refresh()
+                continue
             # Input Commands
             elif self.button in "FIK":
                 self.run_prompt()
@@ -247,6 +252,8 @@ class TUI:
         # TODO: Run benchmarks
 
         # TODO: Display results
+
+        # TODO: Method of clearing displayed results upon another action
 
     # ------------------------------ Update Display ------------------------------ #
 
