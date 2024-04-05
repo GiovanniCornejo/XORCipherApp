@@ -87,8 +87,7 @@ class GUI:
     
     def init_output(self):
         """Initialize the display window contained within the overlay window."""
-        window = curses.newwin(self.OUTPUT_ROWS, self.OUTPUT_COLS, 
-                               self.OUTPUT_Y, self.OUTPUT_X)
+        window = curses.newwin(self.OUTPUT_ROWS, self.OUTPUT_COLS, self.OUTPUT_Y, self.OUTPUT_X)
         window.box()
         return window
     
@@ -100,7 +99,6 @@ class GUI:
     def init_input(self):
         """Initialize the user input window contained within the prompt window"""
         window = curses.newwin(self.INPUT_ROWS, self.INPUT_COLS, self.INPUT_Y, self.INPUT_X)
-
         text_win = curses.newwin(1, self.INPUT_COLS - 2, self.INPUT_Y + 1, self.INPUT_X + 1)
         return window, text_win
     
@@ -108,9 +106,7 @@ class GUI:
     # ------------------------------ Run Application ----------------------------- #
     
     def run(self):
-        """
-        Runs the program with the provided background object.
-        """
+        """ Runs the program with the provided background object. """
         while self.button != 'Q':
             # Cipher Commands
             if self.button in "RPV":
@@ -125,17 +121,14 @@ class GUI:
                 self.update_status("ERROR: Invalid menu selection!")
                 self.background.refresh()
             
-
-
             self.button = self.background.getkey().upper()
 
     def run_prompt(self):
         """Handle the current input command."""
-
         if self.button == 'F':
             prompt = "Enter file to load, then press [ENTER]"
             command = self.read_from_file
-            status_cancel = "File load cancelled"
+            status_cancel = "File load cancelled."
         elif self.button == 'I':
             prompt = "Enter new text below, then press [ENTER]"
             command = self.read_from_input
@@ -165,7 +158,7 @@ class GUI:
     
     def get_user_input(self):
         self.input.box()
-        self.input.refresh()
+        self.input.refresh() # No need to clear, prompt clears this
 
         self.textwin.clear()
         self.textwin.move(0, 0)
@@ -175,7 +168,6 @@ class GUI:
         user_input = textbox.gather()
         user_input = user_input[0:len(user_input) - 1]
         
-        self.input.clear()
         return user_input.strip()
     
     def run_cipher(self):
@@ -208,6 +200,7 @@ class GUI:
     def change_cipher_key(self, k: str):
         """
         Change key used for ciphers.
+        
         Parameters:
         k: The key to replace with.
         """
