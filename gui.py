@@ -1,4 +1,5 @@
 import curses
+from curses.textpad import Textbox, rectangle
 
 class GUI:
     # Container for application
@@ -37,17 +38,14 @@ class GUI:
 
         # Initialize Menus
         self.background = stdscr
-        self.status = "Application started successfully."
-        self.background.addstr(self.OVERLAY_ROWS, 0, self.status)
-
         self.overlay = self.init_overlay()
         self.menu = self.init_menu()
         self.output = self.init_output()
         self.prompt = self.init_prompt()
-        self.input = self.init_input()
+        self.input, self.textwin = self.init_input()
 
         # Initial Display
-        self.update_status()
+        self.update_status("Application started successfully.")
         self.update_text_and_key()
 
         self.background.refresh()
@@ -97,14 +95,14 @@ class GUI:
     def init_prompt(self):
         """Initialize the prompt window contained within the overlay window."""
         window = curses.newwin(self.PROMPT_ROWS, self.PROMPT_COLS, self.PROMPT_Y, self.PROMPT_X)
-        window.box()
         return window
     
     def init_input(self):
         """Initialize the user input window contained within the prompt window"""
         window = curses.newwin(self.INPUT_ROWS, self.INPUT_COLS, self.INPUT_Y, self.INPUT_X)
-        window.box()
-        return window
+
+        text_win = curses.newwin(1, self.INPUT_COLS - 2, self.INPUT_Y + 1, self.INPUT_X + 1)
+        return window, text_win
     
 
     # ------------------------------ Run Application ----------------------------- #
@@ -115,44 +113,108 @@ class GUI:
         """
         while self.button != 'Q':
             # Cipher Commands
-            if self.button == 'startup':
-                pass
+            if self.button in "RPV":
+                self.run_cipher()
+            elif self.button == "B":
+                self.run_benchmarks()
             # Input Commands
-            else:
+            elif self.button in "FIK":
                 self.run_prompt()
+            # Incorrect Command
+            elif self.button != "startup":
+                self.update_status("ERROR: Invalid menu selection!")
+                self.background.refresh()
+            
+
 
             self.button = self.background.getkey().upper()
 
     def run_prompt(self):
-        """Handle the current input command or benchmark."""
+        """Handle the current input command."""
 
-        # Get Current Prompt
         if self.button == 'F':
-            message = "Enter file to load, then press [ENTER]"
-
-        x = self.PROMPT_COLS // 2 - len(message) // 2 # Center text
-        self.prompt.addstr(1, 1, " " * (self.PROMPT_COLS - 3))
-        self.prompt.addstr(1, x, message)
+            prompt = "Enter file to load, then press [ENTER]"
+            command = self.read_from_file
+            status_cancel = "File load cancelled"
+        elif self.button == 'I':
+            prompt = "Enter new text below, then press [ENTER]"
+            command = self.read_from_input
+            status_cancel = "Cancelled user input of text (empty string)."
+        elif self.button == 'K':
+            prompt = "Enter new key and then press [ENTER]"
+            command = self.change_cipher_key
+            status_cancel = "Cancelled user input of key (empty string)."
+        
+        self.update_prompt(prompt)
         self.prompt.refresh()
 
-        # TODO: Implement each input command
-        # TODO: Implement special display for benchmarking
+        user_input = self.get_user_input()
+        if user_input == "":
+            self.update_status(status_cancel)
+            self.prompt.clear()
+            self.prompt.refresh()
+            self.background.refresh()
+            return
 
+        status_output = command(user_input)
+        self.update_status(status_output)
+
+        self.prompt.clear()
+        self.prompt.refresh()
+        self.background.refresh()
+    
+    def get_user_input(self):
+        self.input.box()
         self.input.refresh()
+
+        self.textwin.clear()
+        self.textwin.move(0, 0)
+        textbox = Textbox(self.textwin)
+        textbox.edit()
+
+        user_input = textbox.gather()
+        user_input = user_input[0:len(user_input) - 1]
+        
+        self.input.clear()
+        return user_input.strip()
+    
+    def run_cipher(self):
+        pass
+
     
     # ------------------------------ Input Commands ------------------------------ #
 
-    def read_from_file(self):
-        """Read text from a local file."""
-        pass
+    def read_from_file(self, file: str):
+        """
+        Read text from a local file.
+        
+        Parameters:
+        file: The relative path to the file to be ciphered.
+        """
+        return "File contents loaded successfully."
 
-    def read_from_input(self):
-        """Read text from user input prompt."""
-        pass
+    def read_from_input(self, t: str):
+        """
+        Read text from user input prompt.
 
-    def change_cipher_key(self):
-        """Change key used for ciphers."""
-        pass
+        Parameters:
+        t: The text to replace with.
+        """
+        self.text = t.encode('cp437')
+        self.update_text_and_key()
+        self.output.refresh()
+        return "New text loaded into memory from user input."
+
+    def change_cipher_key(self, k: str):
+        """
+        Change key used for ciphers.
+        Parameters:
+        k: The key to replace with.
+        """
+        self.key = k.encode('cp437')
+        self.update_text_and_key()
+        self.output.refresh()
+        return "New key loaded into memory from user input."
 
     # ------------------------------ Cipher Commands ----------------------------- #
 
@@ -170,7 +232,8 @@ class GUI:
 
     def run_benchmarks(self):
         """Run benchmarks on text for Rust and Python cipher."""
-        pass
+        self.update_prompt("Running benchmarks...")
+        self.prompt.refresh()
 
     # ------------------------------ Update Display ------------------------------ #
 
@@ -196,7 +259,13 @@ class GUI:
         self.output.addstr(2, 2," " * (self.OUTPUT_COLS - 3))
         self.output.addstr(2, 2, "KEY  [" + str_key + "]")
             
-    def update_status(self):
+    def update_status(self, status):
         """Update the status shown."""
         self.background.addstr(self.OVERLAY_ROWS, 0, " " * self.OUTPUT_COLS)
-        self.background.addstr(self.OVERLAY_ROWS, 0, "Status: " + self.status)
+        self.background.addstr(self.OVERLAY_ROWS, 0, "Status: " + status)
+    
+    def update_prompt(self, message):
+        """Update the prompt shown"""
+        x = self.PROMPT_COLS // 2 - len(message) // 2 # Center text
+        self.prompt.addstr(1, x, message)
+        self.prompt.box()
