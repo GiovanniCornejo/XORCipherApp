@@ -1,5 +1,5 @@
 import curses
-from curses.textpad import Textbox, rectangle
+from curses.textpad import Textbox
 
 from cipher import cipher, load_cipher_lib
 
