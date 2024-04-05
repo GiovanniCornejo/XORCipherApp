@@ -120,7 +120,7 @@ class TUI:
     def run_prompt(self):
         """Handle the current input command."""
         if self.button == 'F':
-            prompt = "Enter file to load, then press [ENTER]"
+            prompt = "Enter file to load below, then press [ENTER]"
             command = self.read_from_file
             status_cancel = "File load cancelled."
         elif self.button == 'I':
@@ -177,7 +177,14 @@ class TUI:
         Parameters:
         file: The relative path to the file to be ciphered.
         """
-        return "File contents loaded successfully."
+        try:
+            with open(file, 'r', encoding='cp437') as f:
+                self.text = f.read().encode('cp437')
+            self.update_text_and_key()
+            self.output.refresh()
+            return "File contents loaded successfully."
+        except:
+            return "ERROR: COULD NOT LOAD FILE: " + file
 
     def read_from_input(self, t: str):
         """
