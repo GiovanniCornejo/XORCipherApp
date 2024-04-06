@@ -1,5 +1,7 @@
 # XOR Cipher App
 
+![Demo](demo/XORCipherApp_thumbnail.jpg)
+
 ## Description
 
 An application to apply and benchmark a simple XOR cipher in Python and Rust using the curses TUI.
@@ -17,9 +19,9 @@ After launching the application, you'll encounter a menu with the following opti
 - **`[V]` Verify cipher results match**: Compare the results of the Rust and Python ciphers to verify that that they produce the same output for the given input text.
 - **`[K]` Change Key used for ciphers**: Change the current key used by both the Rust and Python ciphers. You will be prompted to enter a new key.
 - **`[B]` Run Benchmarks on text (100000x)**: Run benchmarks by performing the cipher operation 100k times on the Rust and Python implementations and display the time taken for each.
-- **`[Q]` Quit the application**: Exit the application.
+- **`[Q]` Quit the application**: Exit.
 
-NOTE: You can exit any prompt by pressing `[ENTER]` with an empty input.
+**NOTE**: You can exit any prompt by pressing `[ENTER]` with an empty input.
 
 ## Dependencies
 
