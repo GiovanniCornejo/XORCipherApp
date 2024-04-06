@@ -1,6 +1,9 @@
 import curses
 from curses.textpad import Textbox
 
+import ctypes
+from timeit import timeit
+
 from cipher import cipher, load_cipher_lib
 
 class TUI:
@@ -246,21 +249,41 @@ class TUI:
         the results are compared to verify that the cipher-text from each match one another. 
         """
         python_cipher = cipher(self.text, self.key)
-        rust_cipher = ''
+        rust_cipher = ctypes.create_string_buffer(len(self.text))
+        self.cipher_lib.cipher(self.text, self.key, rust_cipher, len(self.text), len(self.key))
 
-        if python_cipher == rust_cipher:
+        if python_cipher == bytes(rust_cipher):
             return "Cipher match verified!"
         else:
             return "WARNING: Ciphers do not match!"
 
     def run_benchmarks(self):
-        """Run benchmarks on current text for Rust and Python cipher."""
+        """
+        Run benchmarks on current text for Rust and Python cipher.
+        To benchmark the ciphers, each is ran 100,000 times using the timeit module.
+        """
         self.update_prompt("Running benchmarks...")
         self.prompt.refresh()
+        self.prompt.clear()
 
-        # TODO: Run benchmarks
+        rust_cipher = ctypes.create_string_buffer(len(self.text))
+        rust_time = timeit(lambda: self.cipher_lib.cipher(self.text, self.key, rust_cipher, len(self.text), len(self.key)), number=100000)
+        python_time = timeit(lambda: cipher(self.text, self.key), number=100000)
 
-        # TODO: Display results
+        # Format cipher time outputs
+        python_time_formatted = "{:.3f}".format(python_time)
+        rust_time_formatted = "{:.3f}".format(rust_time)
+
+        benchmark_output = "Results from Benchmark"
+        x = self.PROMPT_COLS // 2 - len(benchmark_output) // 2 # Center text
+        self.prompt.addstr(1, x, benchmark_output)
+        self.prompt.addstr(2, x, "----------------------")
+        self.prompt.addstr(3, x, f"Rust Cipher:   {rust_time_formatted:0>6s}s")
+        self.prompt.addstr(4, x, f"Python Cipher: {python_time_formatted:0>6s}s")
+        self.prompt.box()
+        self.prompt.refresh()
+        self.update_status("Benchmark results displayed.")
+        self.background.refresh()
 
     # ------------------------------ Update Display ------------------------------ #
 
