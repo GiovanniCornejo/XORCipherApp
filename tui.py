@@ -1,8 +1,6 @@
 import curses
 from curses.textpad import Textbox
 
-import ctypes
-
 from cipher import cipher, load_cipher_lib
 
 class TUI:
