@@ -14,6 +14,11 @@
 /// It's the caller's responsibility to ensure that the pointers are valid and that
 /// the memory they point to is properly allocated and mutable.
 ///
+#[no_mangle]
 pub fn cipher(msg: *const i8, key: *const i8, buf: *mut i8, msg_len: usize, key_len: usize) {
-    // Function implementation goes here
+    unsafe {
+        for i in 0..msg_len as isize {
+            *buf.offset(i) = *msg.offset(i) ^ *key.offset(i % key_len as isize);
+        }
+    }
 }

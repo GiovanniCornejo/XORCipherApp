@@ -1,3 +1,6 @@
+import os
+import ctypes
+
 def cipher(message: bytes, key: bytes) -> bytes:
     """
     Executes the Python XOR-cipher.
@@ -22,4 +25,14 @@ def load_cipher_lib(library_path: str):
     Returns:
         object: The loaded cipher library object.
     """
-    pass
+    full_library_path = os.path.abspath(library_path)
+    libxorcipher = ctypes.cdll.LoadLibrary(full_library_path)
+    libxorcipher.cipher.argtypes = (
+        ctypes.c_char_p,  # msg
+        ctypes.c_char_p,  # key
+        ctypes.c_char_p,  # buf
+        ctypes.c_size_t,  # msg_len
+        ctypes.c_size_t   # key_len
+    )
+
+    return libxorcipher

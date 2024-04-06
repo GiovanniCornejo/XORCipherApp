@@ -1,6 +1,8 @@
 import curses
 from curses.textpad import Textbox
 
+import ctypes
+
 from cipher import cipher, load_cipher_lib
 
 class TUI:
@@ -26,11 +28,12 @@ class TUI:
         curses.noecho() # Type without it showing
         curses.cbreak() # React to keys instantly
 
-        # Default Text and Key values
         self.key = "But there's one sound that no one knows... What does the Fox say?".encode('cp437')
         self.text = "This is a haiku; it is not too long I think; but you may disagree".encode('cp437')
-
         self.button = "startup"
+        
+        # Load External Cipher
+        self.cipher_lib = load_cipher_lib("libxorcipher.so")
 
         # Initialize Menus
         self.background = stdscr
@@ -137,6 +140,7 @@ class TUI:
         self.update_prompt(prompt)
         self.prompt.refresh()
 
+        # Check if cancelled
         user_input = self.get_user_input()
         if user_input == "":
             self.update_status(status_cancel)
@@ -179,8 +183,6 @@ class TUI:
         status_output = command()
         self.update_status(status_output)
         self.background.refresh()
-
-
     
     # ------------------------------ Input Commands ------------------------------ #
 
@@ -228,7 +230,9 @@ class TUI:
 
     def apply_rust_cipher(self):
         """Apply Rust cipher to text."""
-        # TODO: Apply Rust Cipher + Load Library (in __init__ maybe)
+        self.cipher_lib.cipher(self.text, self.key, self.text, len(self.text), len(self.key))
+        self.update_text_and_key()
+        self.output.refresh()
         return "Applied Rust cipher."
 
     def apply_python_cipher(self):
@@ -239,10 +243,17 @@ class TUI:
         return "Applied Python cipher."
 
     def verify_cipher_results(self):
-        """Verify cipher results."""
+        """
+        The current text and key are ran through both ciphers and 
+        the results are compared to verify that the cipher-text from each match one another. 
+        """
+        python_cipher = cipher(self.text, self.key)
+        rust_cipher = ''
 
-        # TODO: Verify
-        return "Cipher match verified!"
+        if python_cipher == rust_cipher:
+            return "Cipher match verified!"
+        else:
+            return "WARNING: Ciphers do not match!"
 
     def run_benchmarks(self):
         """Run benchmarks on current text for Rust and Python cipher."""
