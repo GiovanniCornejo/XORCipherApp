@@ -35,7 +35,7 @@ After launching the application, you'll encounter a menu with the following opti
    git clone https://github.com/GiovanniCornejo/XORCipherApp.git
    cd XORCipherApp
    ```
-2. Compile the Rust shared cipher library
+2. Compile the Rust shared cipher library:
    ```bash
    make
    ```
